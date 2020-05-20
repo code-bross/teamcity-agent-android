@@ -5,7 +5,7 @@ MAINTAINER rkd2468
 ENV GRADLE_HOME=/usr/bin/gradle
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get -y update
+RUN RUN apt-get clean && apt-get update
 RUN apt-get install -y --force-yes expect git mc gradle unzip \
     wget curl libc6-i386 lib32stdc++6 lib32gcc1 \
     lib32ncurses5 lib32z1
