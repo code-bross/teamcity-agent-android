@@ -1,57 +1,29 @@
-#
-# Teamcity CI: Android v0.3
-#
-FROM jetbrains/teamcity-minimal-agent:latest
+FROM jetbrains/teamcity-agent:latest
 
-MAINTAINER code-bross <code.zer0ad@gmail.com>
+MAINTAINER code-bross
 
-ENV VERSION_TOOLS "6200805"
+ENV GRADLE_HOME=/usr/bin/gradle
+ENV DEBIAN_FRONTEND=noninteractive
+ENV USER_NAME=bross
 
-ENV ANDROID_HOME "/sdk"
-ENV PATH "$PATH:${ANDROID_HOME}/tools"
-ENV DEBIAN_FRONTEND noninteractive
+SHELL ["/bin/sh", "-c"]
+SHELL ["/bin/sh", "-c", "apt-get update"]
+SHELL ["/bin/sh", "-c", "apt-get install -y --force-yes expect git mc gradle unzip"]
+SHELL ["/bin/sh", "-c", "wget curl libc6-i386 lib32stdc++6 lib32gcc1 lib32ncurses5 lib32z1 lib32ncurses5 lib32z1"]
+SHELL ["/bin/sh", "-c", "apt-get clean"]
+SHELL ["/bin/sh", "-c", "rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/*"]
 
-RUN apt-get -qq update \
- && apt-get install -qqy --no-install-recommends \
-      bzip2 \
-      curl \
-      git-core \
-      html2text \
-      openjdk-8-jdk \
-      libc6-i386 \
-      lib32stdc++6 \
-      lib32gcc1 \
-      lib32ncurses5 \
-      lib32z1 \
-      unzip \
-      locales \
- && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN locale-gen en_US.UTF-8
-ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en' LC_ALL='en_US.UTF-8'
+ENV PATH ${PATH}:/opt/tools
 
-RUN rm -f /etc/ssl/certs/java/cacerts; \
-    /var/lib/dpkg/info/ca-certificates-java.postinst configure
+SHELL ["/bin/sh", "-c", "cd /opt"]
+SHELL ["/bin/sh", "-c", "wget --output-document=android-tools.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip && unzip android-tools.zip -d android-sdk-linux && chown -R root.root android-sdk-linux"]
 
-RUN curl -s https://dl.google.com/android/repository/commandlinetools-linux-${VERSION_TOOLS}_latest.zip > /tools.zip \
- && mkdir -p ${ANDROID_HOME}/cmdline-tools \
- && unzip /tools.zip -d ${ANDROID_HOME}/cmdline-tools \
- && rm -v /tools.zip
+ENV ANDROID_HOME /opt/android-sdk-linux
+ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/platform-tools
 
-RUN mkdir -p $ANDROID_HOME/licenses/ \
- && echo "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_HOME/licenses/android-sdk-license \
- && echo "84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > $ANDROID_HOME/licenses/android-sdk-preview-license \
- && yes | ${ANDROID_HOME}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --licenses >/dev/null
 
-ADD packages.txt /sdk
-RUN mkdir -p /root/.android \
- && touch /root/.android/repositories.cfg \
- && ${ANDROID_HOME}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --update
+SHELL ["/bin/sh", "-c", "yes | sdkmanager --licenses"]
+SHELL ["/bin/sh", "-c", "sdkmanager --update"]
+SHELL ["/bin/sh", "-c", "yes | sdkmanager \"build-tools;29.0.3\" \"platforms;android-29\" \"ndk-bundle\" \"ndk;21.0.6113669\""]
 
-RUN while read -r package; do PACKAGES="${PACKAGES}${package} "; done < /sdk/packages.txt \
- && ${ANDROID_HOME}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} ${PACKAGES}
- 
- # Install ndk
-RUN $ANDROID_HOME/tools/bin/sdkmanager "extras;google;m2repository" \
-    && $ANDROID_HOME/tools/bin/sdkmanager "extras;google;google_play_services" \
-    && $ANDROID_HOME/tools/bin/sdkmanager "patcher;v4" \
-    && chown -R $USER:$USER $ANDROID_HOME
+
