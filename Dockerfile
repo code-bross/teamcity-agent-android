@@ -7,8 +7,8 @@ ENV ANDROID_HOME "/sdk"
 ENV PATH "$PATH:${ANDROID_HOME}/tools"
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get -qq update \
- && apt-get install -y --no-install-recommends \
+RUN apt-get -qq -y update \
+ && apt-get install -qqy -y --no-install-recommends \
       bzip2 \
       curl \
       git-core \
