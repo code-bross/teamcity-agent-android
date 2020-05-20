@@ -12,9 +12,7 @@ RUN apt-get install -y --force-yes expect git mc gradle unzip \
 RUN apt-get clean
 RUN rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD android-accept-licenses.sh /opt/tools/
 ENV PATH ${PATH}:/opt/tools
-ENV LICENSE_SCRIPT_PATH /opt/tools/android-accept-licenses.sh
 
 RUN cd /opt && wget --output-document=android-tools.zip \
     https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip && \
