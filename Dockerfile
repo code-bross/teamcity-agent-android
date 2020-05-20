@@ -1,4 +1,4 @@
-FROM jetbrains/teamcity-agent:latest
+FROM jetbrains/teamcity-agent:2019.2.1
 
 MAINTAINER rkd2468
 
