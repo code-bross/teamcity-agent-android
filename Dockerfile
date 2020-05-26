@@ -3,6 +3,7 @@ FROM jetbrains/teamcity-agent:2019.2.1
 MAINTAINER rkd2468
 
 ENV VERSION_TOOLS "6200805"
+ENV ANDROID_NDK_HOME /opt/android-ndk
 
 ENV ANDROID_HOME "/sdk"
 ENV PATH "$PATH:${ANDROID_HOME}/tools"
@@ -46,3 +47,20 @@ RUN mkdir -p /root/.android \
 
 RUN while read -r package; do PACKAGES="${PACKAGES}${package} "; done < /sdk/packages.txt \
  && ${ANDROID_HOME}/cmdline-tools/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} ${PACKAGES}
+ 
+ # ------------------------------------------------------
+# --- Android NDK
+
+
+# download
+RUN mkdir /opt/android-ndk-tmp
+RUN cd /opt/android-ndk-tmp && wget -q https://dl.google.com/android/repository/android-ndk-r21-linux-x86_64.zip
+# uncompress
+RUN cd /opt/android-ndk-tmp && chmod a+x ./android-ndk-r21-linux-x86_64.zip
+RUN cd /opt/android-ndk-tmp && ./android-ndk-r21-linux-x86_64.zip
+# move to it's final location
+RUN cd /opt/android-ndk-tmp && mv ./android-ndk-r21-linux-x86_64 /opt/android-ndk
+# remove temp dir
+RUN rm -rf /opt/android-ndk-tmp
+# add to PATH
+ENV PATH ${PATH}:${ANDROID_NDK_HOME}
