@@ -54,12 +54,12 @@ RUN while read -r package; do PACKAGES="${PACKAGES}${package} "; done < /sdk/pac
 
 # download
 RUN mkdir /opt/android-ndk-tmp
-RUN cd /opt/android-ndk-tmp && wget -q https://dl.google.com/android/repository/android-ndk-r21-linux-x86_64.zip
+RUN cd /opt/android-ndk-tmp && curl -s https://dl.google.com/android/repository/android-ndk-r21-linux-x86_64.zip > /opt/android-ndk-tmp/ndk.zip
 # uncompress
-RUN cd /opt/android-ndk-tmp && chmod a+x ./android-ndk-r21-linux-x86_64.zip
-RUN cd /opt/android-ndk-tmp && ./android-ndk-r21-linux-x86_64.zip
+RUN cd /opt/android-ndk-tmp && chmod a+x /opt/android-ndk-tmp/ndk.zip
+RUN unzip /opt/android-ndk-tmp/ndk.zip -d /opt/android-ndk-tmp/ndk
 # move to it's final location
-RUN cd /opt/android-ndk-tmp && mv ./android-ndk-r21-linux-x86_64 /opt/android-ndk
+RUN cd /opt/android-ndk-tmp && mv /opt/android-ndk-tmp/ndk /opt/android-ndk
 # remove temp dir
 RUN rm -rf /opt/android-ndk-tmp
 # add to PATH
