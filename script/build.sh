@@ -1,0 +1,1 @@
+docker build . --tag rkd2468/teamcity-agent-android:latest

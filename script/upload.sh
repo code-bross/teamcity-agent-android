@@ -1,0 +1,1 @@
+docker login --username rkd2468 -p ${token} && docker push rkd2468/teamcity-agent-android:latest
